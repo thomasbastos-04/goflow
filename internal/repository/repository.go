@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/thomas-dev7/goflow/internal/domain"
+	"github.com/thomasbastos-04/goflow/internal/domain"
 )
 
 var ErrNotFound = errors.New("not found")

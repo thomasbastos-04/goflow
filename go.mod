@@ -1,4 +1,4 @@
-module github.com/thomas-dev7/goflow
+module github.com/thomasbastos-04/goflow
 
 go 1.26
 

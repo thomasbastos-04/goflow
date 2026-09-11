@@ -12,11 +12,11 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 
-	"github.com/thomas-dev7/goflow/internal/auth"
-	"github.com/thomas-dev7/goflow/internal/config"
-	"github.com/thomas-dev7/goflow/internal/httpapi"
-	"github.com/thomas-dev7/goflow/internal/platform"
-	"github.com/thomas-dev7/goflow/internal/repository"
+	"github.com/thomasbastos-04/goflow/internal/auth"
+	"github.com/thomasbastos-04/goflow/internal/config"
+	"github.com/thomasbastos-04/goflow/internal/httpapi"
+	"github.com/thomasbastos-04/goflow/internal/platform"
+	"github.com/thomasbastos-04/goflow/internal/repository"
 )
 
 func main() {

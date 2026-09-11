@@ -10,10 +10,10 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/thomas-dev7/goflow/internal/config"
-	"github.com/thomas-dev7/goflow/internal/domain"
-	"github.com/thomas-dev7/goflow/internal/platform"
-	"github.com/thomas-dev7/goflow/internal/repository"
+	"github.com/thomasbastos-04/goflow/internal/config"
+	"github.com/thomasbastos-04/goflow/internal/domain"
+	"github.com/thomasbastos-04/goflow/internal/platform"
+	"github.com/thomasbastos-04/goflow/internal/repository"
 )
 
 func main() {
