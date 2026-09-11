@@ -1,0 +1,35 @@
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      host: unix:///var/run/docker.sock
+      hints.enabled: true
+      hints.default_config.enabled: false
+
+autodiscover:
+  # Kept empty intentionally; Docker hints above define which containers are collected.
+
+processors:
+  - add_host_metadata: ~
+  - add_docker_metadata:
+      host: unix:///var/run/docker.sock
+  - decode_json_fields:
+      fields: ["message"]
+      target: ""
+      overwrite_keys: true
+      add_error_key: true
+  - drop_fields:
+      fields: ["agent.ephemeral_id", "ecs.version"]
+      ignore_missing: true
+
+setup.kibana:
+  host: http://kibana:5601
+
+setup.ilm.enabled: true
+setup.template.enabled: true
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  index: "filebeat-%{[agent.version]}"
+
+logging.level: info
+logging.to_files: false

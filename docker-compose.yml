@@ -35,6 +35,53 @@ services:
       timeout: 5s
       retries: 15
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.4
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      xpack.security.enrollment.enabled: "false"
+      ES_JAVA_OPTS: "-Xms768m -Xmx768m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.19.4
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      XPACK_SECURITY_ENABLED: "false"
+      TELEMETRY_ENABLED: "false"
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.19.4
+    user: root
+    command: ["filebeat", "-e", "--strict.perms=false"]
+    volumes:
+      - ./observability/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - filebeat_data:/usr/share/filebeat/data
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_started
+    restart: unless-stopped
+
   api:
     build:
       context: .
@@ -42,6 +89,12 @@ services:
         APP: api
     env_file: .env
     ports: ["8080:8080"]
+    labels:
+      co.elastic.logs/enabled: "true"
+      co.elastic.logs/json.keys_under_root: "true"
+      co.elastic.logs/json.add_error_key: "true"
+      co.elastic.logs/processors.1.add_fields.target: "service"
+      co.elastic.logs/processors.1.add_fields.fields.name: "goflow-api"
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -54,6 +107,12 @@ services:
       args:
         APP: worker
     env_file: .env
+    labels:
+      co.elastic.logs/enabled: "true"
+      co.elastic.logs/json.keys_under_root: "true"
+      co.elastic.logs/json.add_error_key: "true"
+      co.elastic.logs/processors.1.add_fields.target: "service"
+      co.elastic.logs/processors.1.add_fields.fields.name: "goflow-worker"
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -66,6 +125,12 @@ services:
       args:
         APP: outbox
     env_file: .env
+    labels:
+      co.elastic.logs/enabled: "true"
+      co.elastic.logs/json.keys_under_root: "true"
+      co.elastic.logs/json.add_error_key: "true"
+      co.elastic.logs/processors.1.add_fields.target: "service"
+      co.elastic.logs/processors.1.add_fields.fields.name: "goflow-outbox"
     depends_on:
       postgres: { condition: service_healthy }
       rabbitmq: { condition: service_healthy }
@@ -73,3 +138,5 @@ services:
 
 volumes:
   postgres_data:
+  elasticsearch_data:
+  filebeat_data:
